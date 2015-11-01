@@ -1,0 +1,90 @@
+﻿/* site.less */
+@sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+@color-light: #eee;
+@color-dark: #222;
+@color-sidebar: #2a2c36;
+@width-sidebar: 250px;
+@duration: .25s;
+@ease: ease;
+@transition-sidebar: left;
+@transition-wrapper: margin-left;
+
+.transition(@element: all) {
+    -webkit-transition: @element @duration @ease;
+    -moz-transition: @element @duration @ease;
+    -o-transition: @element @duration @ease;
+    transition: @element @duration @ease;
+}
+
+body {
+    font-family: @sans;
+    font-size: 14px;
+    margin: 0;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+}
+
+input[type=text], input[type=password], textarea {
+    width: 150px;
+}
+
+.menu {
+    font-size: 12px;
+
+    li {
+        list-style-type: none;
+
+        &.active {
+            font-weight: bold;
+        }
+    }
+}
+
+#wrapper {
+    margin: 0 0 0 @width-sidebar;
+    .transition(@transition-wrapper);
+
+    &.hide-sidebar {
+        margin-left: 0;
+    }
+}
+
+#sidebar {
+    background: @color-sidebar;
+    color: @color-light;
+    position: fixed;
+    height: 100%;
+    width: @width-sidebar;
+    overflow: hidden;
+    left: 0;
+    margin: 0;
+    .transition(@transition-sidebar);
+
+    &.hide-sidebar {
+        left: -@width-sidebar;
+    }
+}
+
+.headshot {
+    max-width: 50px;
+    border: 1px solid @color-dark;
+    padding: 3px;
+}
+
+#main {
+    background-color: @color-light;
+    padding: 4px;
+    margin: 0;
+}
+
+footer {
+    background-color: @color-dark;
+    color: @color-light;
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}

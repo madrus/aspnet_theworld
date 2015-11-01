@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{175EA045-F7FF-4332-8060-563FC82F1227}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{039ECCC9-7CAC-4738-9E2C-120E854655BB}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		global.json = global.json
+		NOTES.MD = NOTES.MD
+		NuGet.Config = NuGet.Config
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TheWorld", "src\TheWorld\TheWorld.xproj", "{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F} = {175EA045-F7FF-4332-8060-563FC82F1227}
+	EndGlobalSection
+EndGlobal
