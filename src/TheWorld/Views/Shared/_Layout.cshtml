@@ -5,6 +5,7 @@
     <title>The World - @ViewBag.Title</title>
     <!-- we need to use '~/' in front so that MVC knows how to find
     out CSS file. '~/' is the project root directory -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
 </head>
 <body>
@@ -37,6 +38,7 @@
     </div>
 
     <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="~/js/site.js"></script>
 
     @RenderSection("Scripts" /*see e.g. Contact.cshtml*/, false /*not required*/)

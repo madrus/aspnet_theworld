@@ -120,7 +120,7 @@ and add its reference in the Startup.cs (in DEBUG mode if necessary):
 ``` 
 >
 Even better solution would be to use the new IHostingEnvironment interface
-because with the Cloud Services it is became very important to understand
+because with the Cloud Services it has become very important to understand
 where our project is being hosted.
 ```csharp
 public void ConfigureServices(IServiceCollection services, 
@@ -153,3 +153,9 @@ public IActionResult Contact(ContactViewModel model)
     return View();
 }
 ```
+
+#Actions Taken
+* Add Bootstrap 
+  * dep to bower.json
+  * min.css to _Layout.cshtml (before site.css)
+  * min.js to _Layout.cshtml (after jQuery, befor site.js)
