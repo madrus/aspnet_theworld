@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 		NOTES.MD = NOTES.MD
 		NuGet.Config = NuGet.Config
+		WebEssentials2015-Settings.json = WebEssentials2015-Settings.json
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TheWorld", "src\TheWorld\TheWorld.xproj", "{82FB2C33-4BC4-4243-ACDA-6C7AB1A2A95F}"

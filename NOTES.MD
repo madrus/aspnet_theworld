@@ -2,6 +2,7 @@
 
 ## Interface Tips
 * Shortcut Alt+Shift+W wraps the selected piece of HTML code in DIV tags
+* Shortcut Alt+Shift+???? compiles our LESS file to CSS
 
 ## HTML
 **HTML Entity** is a shortcut to display certain kinds of characters.
@@ -159,3 +160,20 @@ public IActionResult Contact(ContactViewModel model)
   * dep to bower.json
   * min.css to _Layout.cshtml (before site.css)
   * min.js to _Layout.cshtml (after jQuery, befor site.js)
+* CSS: body, label, input in comment (to use BS)
+* _Layout
+  * button: btn + btn-primary
+  * p: text-primary
+  * i: glyphicon glyphicon-chevron-left
+* Add Font-Awesome
+  * dep to bower.json
+  * min.css to _Layout.cshtml (before site.css)
+* _Layout
+  * i: fa fa-angle-left
+* site.js
+  * addClass/removeClass fa-angle-left/fa-angle-right
+* choose a [bootswatch.com](bootswatch.com) theme
+  * dep in bower.json
+  * min.css to _Layout.cshtml (after bootstrap.css)
+* CSS: main and footer in comment
+  * i: fa fa-angle-left
