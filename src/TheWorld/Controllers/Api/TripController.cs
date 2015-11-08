@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using TheWorld.Models;
@@ -10,6 +11,11 @@ using TheWorld.Models;
 
 namespace TheWorld.Controllers.Api
 {
+    /// <summary>
+    /// This specifies the root route for our API methods
+    /// All the individual methods have to extend the path
+    /// </summary>
+    [Route("api/trips")]
     public class TripController : Controller
     {
         private readonly IWorldRepository _repository;
@@ -19,12 +25,25 @@ namespace TheWorld.Controllers.Api
             _repository = repository;
         }
 
-        [HttpGet("api/trips")]
+        [HttpGet("")]
         public JsonResult Get()
         {
             var results = _repository.GetAllTripsWithStops();
             //return Json(new {name = "Andre"});
             return Json(results);
+        }
+
+        [HttpPost("")]
+        public JsonResult Post([FromBody]Trip newTrip)
+        {
+            if (ModelState.IsValid)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Created;
+                return Json(true);
+            }
+
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return Json("Failed");
         }
     }
 }

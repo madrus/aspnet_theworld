@@ -221,4 +221,40 @@ Creating the API
             opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         });
 ```
+* We add a `[Route("api/trips")]` attribute to the class. This gives the root route
+  for all our methods inside this controller. So, `[HttpGet("api/trips")]`
+  becomes `[HttpGet("")]`, etc.
+* Now, we can change GET to PUT in the Postman and create a test trip in the Body tab.
+  For that we choose raw/JSON(application/json) type data.
+* Create a POST method in TripController. This could be a nice test implementation
+  that allows us to see the incoming data in the debugger:
+```cs
+    [HttpPost("")]
+    public JsonResult Post([FromBody]Trip newTrip)
+    {
+        return Json(true);
+    }
+```
+* Next we have to look at validation. And we have done that already in our `AppController`. 
+  So, it could be something like this:
+```cs
+    [HttpPost("")]
+    public JsonResult Post([FromBody]Trip newTrip)
+    {
+        if (ModelState.IsValid)
+        {
+            Response.StatusCode = (int)HttpStatusCode.Created;
+            return Json(true);
+        }
+
+        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        return Json("Failed");
+    }
+```
+* The problem remains that in this way we are exposing all the properties
+  of the underlying entity (`Trip`) and we don't want that. Therefore, we
+  will replace it with a TripViewModel class in order to hide it.
+* 
+
+
 
