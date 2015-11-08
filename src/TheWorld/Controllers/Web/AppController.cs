@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNet.Mvc;
 using System;
+using System.Linq;
+using TheWorld.Models;
 using TheWorld.Services;
 using TheWorld.ViewModels;
 
@@ -7,16 +9,23 @@ namespace TheWorld.Controllers.Web
 {
     public class AppController : Controller
     {
-        private IMailService _mailService;
+        private readonly IMailService _mailService;
+        // after creating the repository, we can use its interface instead of the context
+        //private readonly WorldContext _context;
+        private readonly IWorldRepository _repository;
 
-        public AppController(IMailService service)
+        // inject our DbContext into the controller
+        public AppController(IMailService service, IWorldRepository repository)
         {
             _mailService = service;
+            _repository = repository;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var trips = _repository.GetAllTrips();
+            // for the @model to work in the view, we give trips back as a param
+            return View(trips);
         }
 
         public IActionResult About()

@@ -155,7 +155,8 @@ public IActionResult Contact(ContactViewModel model)
 }
 ```
 
-#Actions Taken
+Actions Taken
+-------------
 * Add Bootstrap 
   * dep to bower.json
   * min.css to _Layout.cshtml (before site.css)
@@ -177,3 +178,25 @@ public IActionResult Contact(ContactViewModel model)
   * min.css to _Layout.cshtml (after bootstrap.css)
 * CSS: main and footer in comment
   * i: fa fa-angle-left
+
+Entity Framework
+----------------
+* Add DbContext file (`WorldContex.cs`) to the Models map
+* Add SqlServer
+* Add Migrations
+  * add a new dependency `"EntityFramework.Commands": "7.0.0-beta8"`
+    to `project.json`
+  * add a new command `"ef": "EntityFramework.Commands"` to `project.json`
+  * add connection string to `config.json`
+    ```csharp
+        "Data": {
+            "WorldContextConnection": "Server=(localdb)\\MSSQLLocalDB;Database=TheWorldDB;Trusted_Connection=true;MultipleActiveResultSets=true;"
+        }
+    ```
+  * run `dnx ef`
+  * run `dnx ef migrations add InitialDatabase` in the project folder
+  * now we get two new classes in our Migrations folder.
+    We now have both the schema and the database generation scripts.
+  * add `Database.EnsureCreated()` to the WorldContext constructor
+
+

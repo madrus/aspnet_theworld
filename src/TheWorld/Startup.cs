@@ -9,12 +9,14 @@ using TheWorld.Services;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Framework.Configuration;
 using Microsoft.Dnx.Runtime;
+using Microsoft.Framework.Logging;
+using TheWorld.Models;
 
 namespace TheWorld
 {
     public class Startup
     {
-        private static IHostingEnvironment _env;
+        private readonly IHostingEnvironment _env;
         public static IConfigurationRoot Configuration { get; set; }
 
         /// <summary>
@@ -22,6 +24,7 @@ namespace TheWorld
         /// is being executed
         /// </summary>
         /// <param name="appEnv"></param>
+        /// <param name="env"></param>
         public Startup(
             IApplicationEnvironment appEnv,
             IHostingEnvironment env)
@@ -49,6 +52,32 @@ namespace TheWorld
             // Put Mvc services to the services container
             services.AddMvc();
 
+            services.AddLogging();
+
+            // First we add Entity Framework, then SQL Server
+            // and finally our DbContext
+            services.AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<WorldContext>();
+            // we could add the seeder as scoped, in this way an instance of this class
+            // would be added every time anybody needs it
+            //services.AddScoped<WorldContextSeedData>();
+
+            // but in our case, we would only need it once during configuration
+            // so, we will go another way - stateless
+            services.AddTransient<WorldContextSeedData>();
+
+            // this could also be a possibility if we wanted only one single instance to exist
+            //services.AddSingleton<WorldContextSeedData>();
+
+            // finally, we could use AddInstance and the service will no longer be responsible
+            // for creation and cleanup of this object but it could be helpful in some
+            // situations when the services are not quite friendly or don't work well with dependency injection
+            //services.AddInstance<WorldContextSeedData>("some contructed object");
+
+            // for the repository we will use AddScoped
+            services.AddScoped<IWorldRepository, WorldRepository>();
+
             if (_env.IsDevelopment())
             {
                 services.AddScoped<IMailService, DebugMailService>();
@@ -64,11 +93,18 @@ namespace TheWorld
         /// http://wildermuth.com/2015/3/2/A_Look_at_ASP_NET_5_Part_2_-_Startup
         /// </summary>
         /// <param name="app"></param>
-        /// <param name="env"></param>
+        /// <param name="loggerFactory"></param>
+        /// <param name="seeder"></param>
         public void Configure(
             IApplicationBuilder app,
-            IHostingEnvironment env)
+            ILoggerFactory loggerFactory,
+            WorldContextSeedData seeder)
         {
+            // we have to choose: logging to console of debug window
+            // or we could our own logging provider
+            // here, we will add the debug window
+            loggerFactory.AddDebug(LogLevel.Warning);
+
             app.UseStaticFiles();
 
             app.UseMvc(config =>
@@ -84,6 +120,10 @@ namespace TheWorld
                     defaults: new { controller = "App", action = "Index" }
                 );
             });
+
+            // we want to inject it here because its constructor
+            // has access to the DbContext and the necessary configuration information
+            seeder.EnsureSeedData();
         }
     }
 }
