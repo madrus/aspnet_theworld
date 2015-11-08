@@ -335,10 +335,43 @@ Creating the API
 * Next we will need a working Url of a GeoCoordinate service of Bing. 
   It has the following format:
 ```cs
+    // lookup coordinates
     var encodedName = WebUtility.UrlEncode(location);
-    var bingKey = Startup.Configuration["AppSettngs:BingKey"];
-    var url = $"http://dev.vertualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
+    // we can use the following setting if we have added our BingKey to our secret.json file
+    var bingKey = _options.Value.BingKey;
+    if (string.IsNullOrWhiteSpace(bingKey))
+    {
+        // we can use the following setting if we added "AppSettngs:BingKey" to Windows environment variables
+        bingKey = Startup.Configuration["AppSettngs:BingKey"];
+    }
+    var url = $"http://dev.virtualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
 ```
 * Get your bingKey from [Bing Maps](https://www.microsoft.com/maps/create-a-bing-maps-key.aspx)
   using your Microsoft identity login.
-* 
+* Store the BingKey either on your own computer as a Windows environment variable
+  or as a UserSecret. See 
+  * the implementation in `Startup.cs` where inside `ConfigureServices` method
+  `MyOptions` class is used to store the BingKey value
+  * in GeoService we inject the IOptions service to read the BingKey
+  * `secrets.json` is added to the project via "Manage User Secrets" menu option.
+    Here we can add the BingKey.
+* Next we add Service.Net.Http reference to use the latest HttpClient Service.
+  Because it is asynchronous by nature, we also need to make the following methods async Tasks:
+* GeoService
+```cs
+    public async Task<GeoServiceResult> Lookup(string location)
+```
+* StopController
+```cs
+    public async Task<JsonResult> Post(string tripName, [FromBody]StopViewModel vm)
+```
+* and to the calls we have to add `await`.
+* For parsing the result we get from the Bing Maps Geolocation service 
+  we are using `Jobject` of Newtonsoft (snippet by Shawn Wildermuth):
+```js
+    var client = new HttpClient();
+    var json = await client.GetStringAsync(url);
+    var results = JObject.Parse(json);
+    var resources = results["resourceSets"][0]["resources"];
+```
+* Now, we have GET en POST methods working. PUT and DELETE are outside of scope for this course.
