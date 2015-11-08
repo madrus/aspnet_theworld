@@ -199,4 +199,26 @@ Entity Framework
     We now have both the schema and the database generation scripts.
   * add `Database.EnsureCreated()` to the WorldContext constructor
 
+Creating the API
+----------------
+* In the project properties take the checkmark off "Launch URL". 
+  So that we could launch our web server instead.
+* We are going to use [Postman](https://www.getpostman.com).
+  Choose the App version of it.
+* Create Api subfolder in Controllers
+* Create a `TripController` inside it and derive it from `Controller`
+* Create a `Get` method with an `[HttpGet("api/trips")]` attribute
+* We can now return a test Json object and see it in Postman
+* Next we can add our repository in the ctor and get the real results.
+  Now we can see them in the Postman but they are not camel-cased.
+  And that could be a bit of a problem in a JavaScript environment.
+* In the `Startup.cs`, we can add the special camel-case `ContractResolver`
+  to our Mvc service:
+```cs
+    services.AddMvc()
+        .AddJsonOptions(opt =>
+        {
+            opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        });
+```
 

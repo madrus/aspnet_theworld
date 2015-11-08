@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
 using Microsoft.Framework.DependencyInjection;
 using TheWorld.Services;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Framework.Configuration;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Framework.Logging;
+using Newtonsoft.Json.Serialization;
 using TheWorld.Models;
 
 namespace TheWorld
@@ -50,7 +48,11 @@ namespace TheWorld
         public void ConfigureServices(IServiceCollection services)
         {
             // Put Mvc services to the services container
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(opt =>
+                {
+                    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                });
 
             services.AddLogging();
 
