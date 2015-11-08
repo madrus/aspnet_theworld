@@ -32,6 +32,13 @@ namespace TheWorld.Models
             _logger = logger;
         }
 
+        public Trip GetTripByName(string tripName)
+        {
+            return _context.Trips
+                .Include(t => t.Stops)
+                .FirstOrDefault(t => t.Name == tripName);
+        }
+
         public IEnumerable<Trip> GetAllTrips()
         {
             var trips = new List<Trip>();
@@ -74,6 +81,30 @@ namespace TheWorld.Models
             }
 
             return trips;
+        }
+
+        public void AddTrip(Trip newTrip)
+        {
+            // here we can also set some default properties if we need them
+            // like Created or UserName
+            _context.Add(newTrip);
+        }
+
+        public void AddStop(string tripName, Stop newStop)
+        {
+            var theTrip = GetTripByName(tripName);
+            // here we can also set some default properties if we need them
+            newStop.Order = theTrip.Stops.Max(s => s.Order) + 1;
+            // we are adding the newStop to the Stops list
+            theTrip.Stops.Add(newStop);
+            _context.Stops.Add(newStop);
+        }
+
+        public bool SaveAll()
+        {
+            // SaveChanges return the number of rows (SQL)
+            // or documents (noSQL) successfully inserted
+            return _context.SaveChanges() > 0;
         }
     }
 }

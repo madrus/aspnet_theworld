@@ -11,7 +11,6 @@ namespace TheWorld.Models
         public DateTime Arrival { get; set; }
         public int Order { get; set; }
 
-        // code first generation is not done any more in EF7
-
+        // "code first" generation is not done any more in EF7
     }
 }

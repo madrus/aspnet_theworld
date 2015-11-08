@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
 using Microsoft.AspNet.Builder;
 using Microsoft.Framework.DependencyInjection;
 using TheWorld.Services;
@@ -9,6 +10,7 @@ using Microsoft.Dnx.Runtime;
 using Microsoft.Framework.Logging;
 using Newtonsoft.Json.Serialization;
 using TheWorld.Models;
+using TheWorld.ViewModels;
 
 namespace TheWorld
 {
@@ -16,6 +18,11 @@ namespace TheWorld
     {
         private readonly IHostingEnvironment _env;
         public static IConfigurationRoot Configuration { get; set; }
+
+        public class MyOptions
+        {
+            public string BingKey { get; set; }
+        }
 
         /// <summary>
         /// Application environment knows where our application
@@ -34,9 +41,13 @@ namespace TheWorld
             // about the hosting environment
             var builder = new ConfigurationBuilder()
                 .SetBasePath(appEnv.ApplicationBasePath)
-                // point to our .json file
                 .AddJsonFile("config.json")
                 .AddEnvironmentVariables();
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets();
+            }
 
             Configuration = builder.Build();
         }
@@ -47,10 +58,14 @@ namespace TheWorld
         // NB: it accepts only ONE argument
         public void ConfigureServices(IServiceCollection services)
         {
+            // add the Configuration to our own MyOptions
+            services.Configure<MyOptions>(Configuration);
+
             // Put Mvc services to the services container
             services.AddMvc()
                 .AddJsonOptions(opt =>
                 {
+                    // to convert pascal-case property name to camel-case
                     opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
 
@@ -61,6 +76,10 @@ namespace TheWorld
             services.AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<WorldContext>();
+
+            // once per request => AddScoped
+            services.AddScoped<GeoService>();
+
             // we could add the seeder as scoped, in this way an instance of this class
             // would be added every time anybody needs it
             //services.AddScoped<WorldContextSeedData>();
@@ -108,6 +127,14 @@ namespace TheWorld
             loggerFactory.AddDebug(LogLevel.Warning);
 
             app.UseStaticFiles();
+
+            // AutoMapper with the ReverseMap because
+            // we have to be able to map in both directions
+            Mapper.Initialize(config =>
+            {
+                config.CreateMap<Trip, TripViewModel>().ReverseMap();
+                config.CreateMap<Stop, StopViewModel>().ReverseMap();
+            });
 
             app.UseMvc(config =>
             {

@@ -254,7 +254,91 @@ Creating the API
 * The problem remains that in this way we are exposing all the properties
   of the underlying entity (`Trip`) and we don't want that. Therefore, we
   will replace it with a TripViewModel class in order to hide it.
+* We create TripViewModel class in our ViewModels folder and expose only
+  Id, Name and Created. The viewmodel does not have to know about e.g. the userName. 
+* On the viewmodel we can add client-side validation attributes.
+* Next, we are going to use AutoMapper to map the ViewModel to Model.
+  We add the AutoMapper in our `project.json` file dependencies.
+* Now, we can use it in our Post method:
+```cs
+    var newTrip = Mapper.Map<Trip>(vm);
+```
+* In `Startup.cs` we have to configure the AutoMapper. Like this:
+```cs
+    // AutoMapper with the ReverseMap because
+    // in the Post method we map from vm to trip
+    // So, we can do Map both ways now
+    Mapper.Initialize(config =>
+    {
+        config.CreateMap<Trip, TripViewModel>()
+            .ReverseMap();
+    });
+```
+* Now, we can also use the same Mapper to return the viewmodel object
+  from the created newTrip:
+```cs
+    // we use the same Mapper to map the newTrip 
+    // back to its viewmodel representation
+    return Json(Mapper.Map<TripViewModel>(newTrip));
+```
+* We also use the Mapper with Get (only with IEnumerable). It will also work
+  properly because it automatically knows how to map collections of known objects: 
+```cs
+    var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
+```
+* Let us add logging to the TripController using `ILogger` parameter.
+* We can now save out newTrip to the repository via AddTrip and SaveAll methods.
+  These have to be added to the IWorldRepository interface first and then
+  implemented in the WorldRepository class.
+* If we successfully save our trip, the new ID from the database will be
+  added to the viewmodel data we return. And the Postman Get shows now all
+  the three trips (2 old + 1 new).
+* Now, we shall build the API controller for Stops. We start by a basic
+  API controller like the one for trips.
+* The route parameter at the top of the class will be
+```cs
+    [Route("api/trips/{tripName}/stops")]
+```
+* Notice `{tripName}` inside the route
+* In the `Get` method we will use a new repository method `GetTripByName(string tripName)`.
+  which we of course have to add to it.
+* Same try/catch block and LogError in the catch
+* As to the mapping of stops for the Response, we will also need a `StopViewModel`.
+* Add validation rules to its properties.
+* Add `Stops` property to the `TripViewModel`.
+* Add a `config.CreateMap` for this new map.
+* Now, we can see in Postman that we are actually getting trips with stops.
+* The `Post` method will be similar to the one of the TripController. 
+  It will take as first param the tripName string.
+* This could be our AddStop method in the WorldRepository:
+```cs
+    public void AddStop(string tripName, Stop newStop)
+    {
+        var theTrip = GetTripByName(tripName);
+        // here we can also set some default properties if we need them
+        newStop.Order = theTrip.Stops.Max(s => s.Order) + 1;
+        // we are adding the newStop to the Stops list
+        _context.Stops.Add(newStop);
+    }
+```
+* Now we need a Geolocation service. Add `GeoService.cs` class to `Services` folder.
+* GeoService will be returning a `GeoServiceResult` object with the following structure:
+```cs
+    public class GeoServiceResult
+    {
+        public bool Success { get; set; }
+        public double Latitude { get; set; }
+        public double Longitute { get; set; }
+        public string Message { get; set; }
+    }
+```
+* Next we will need a working Url of a GeoCoordinate service of Bing. 
+  It has the following format:
+```cs
+    var encodedName = WebUtility.UrlEncode(location);
+    var bingKey = Startup.Configuration["AppSettngs:BingKey"];
+    var url = $"http://dev.vertualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
+```
+* Get your bingKey from [Bing Maps](https://www.microsoft.com/maps/create-a-bing-maps-key.aspx)
+  using your Microsoft identity login.
 * 
-
-
-
