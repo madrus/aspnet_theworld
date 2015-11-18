@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNet.Builder;
 using Microsoft.Framework.DependencyInjection;
@@ -116,7 +117,7 @@ namespace TheWorld
         /// <param name="app"></param>
         /// <param name="loggerFactory"></param>
         /// <param name="seeder"></param>
-        public void Configure(
+        public async Task Configure(
             IApplicationBuilder app,
             ILoggerFactory loggerFactory,
             WorldContextSeedData seeder)
@@ -152,7 +153,7 @@ namespace TheWorld
 
             // we want to inject it here because its constructor
             // has access to the DbContext and the necessary configuration information
-            seeder.EnsureSeedData();
+            await seeder.EnsureSeedDataAsync();
         }
     }
 }

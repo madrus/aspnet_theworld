@@ -9,24 +9,24 @@
 Just type an ampersand '&' and watch the intellisense :)
 
 ## Index.cshtml
-We need to use '~/' in front so that MVC knows 
-how to find out CSS file. '~/' is the project 
+We need to use '~/' in front so that MVC knows
+how to find out CSS file. '~/' is the project
 root directory -->
 
 ## Startup.cs
 ```csharp
 app.UseMvc(config =>
 {
-    config.MapRoute(
-        name: "Default",
-        // in our case we have AppController.Index()
-        // but no 'id', so it will not be looking
-        // for the parameter of the Index method
-        template: "{controller}/{action}/{id?}",
-        // basically we are telling here that // localhost:8000
-        // should be same as localhost:8000/app/index
-        defaults: new { controller = "App", action = "Index" }
-    );
+config.MapRoute(
+name: "Default",
+// in our case we have AppController.Index()
+// but no 'id', so it will not be looking
+// for the parameter of the Index method
+template: "{controller}/{action}/{id?}",
+// basically we are telling here that // localhost:8000
+// should be same as localhost:8000/app/index
+defaults: new { controller = "App", action = "Index" }
+);
 });
 ```
 ## Solution Structure
@@ -35,16 +35,16 @@ app.UseMvc(config =>
       * `[ControllerName]Controller.cs`, e.g. `AppController.cs`
 *  `Services` folder
    *  `IMailService.cs` interface
-*  `ViewModels` folder  
+*  `ViewModels` folder
    ViewModels contain classes necessary for Views to display
-   the model. They are like views of a model. 
-   * `[ViewName]ViewModel.cs`  
-     The model reference should be placed at the top 
-     of the corresponding `[ViewName]` class  
-     `@model` (lowercase) defines the model type (reference).  
+   the model. They are like views of a model.
+   * `[ViewName]ViewModel.cs`
+     The model reference should be placed at the top
+     of the corresponding `[ViewName]` class
+     `@model` (lowercase) defines the model type (reference).
      `@Model` (uppercase) would define the model itself to be used on the page.
 *  `Views` folder
-   *  `[ControllerName]`, e.g. `App`  
+   *  `[ControllerName]`, e.g. `App`
       Voor every IActionResult method in the controller there
       should be a .cshtml view file inside this folder
       * `About.cshtml`
@@ -56,32 +56,32 @@ app.UseMvc(config =>
    *  `_ViewStart.cshtml` - layout template reference
 
 ## Tag Helpers
-*  `asp-for="Name"`  
+*  `asp-for="Name"`
    This one should be put both on a label and an input.
-   Then, if the user clicks on a label, the cursor will be 
-   placed inside the input control and id and name will be 
+   Then, if the user clicks on a label, the cursor will be
+   placed inside the input control and id and name will be
    automagically created (visible in the Web Tools).
-*  `asp-validation-summary="ValidationSummary.ModelOnly"`  
-   Object validation errors (e.g. form) on the object level, 
+*  `asp-validation-summary="ValidationSummary.ModelOnly"`
+   Object validation errors (e.g. form) on the object level,
    not individual property level
-*  `asp-validation-for="Name"`  
+*  `asp-validation-for="Name"`
    Property validation errors
 
 
 ## Annotations
-On a ViewModel we can use annotations for input validation.  
->  `[Required]` - this field is required  
->  `[StringLength(255, MinimumLength = 5)]` - validation of a string input  
+On a ViewModel we can use annotations for input validation.
+>  `[Required]` - this field is required
+>  `[StringLength(255, MinimumLength = 5)]` - validation of a string input
 >  `[EmailAddress]` - this will validate the input against the email regex
 >  `Http[Method]` where Method can be delete, get, post, and update.
 
-We would probably need to add these two extensions to bower.json file:  
-*  `jquery-validation`  
+We would probably need to add these two extensions to bower.json file:
+*  `jquery-validation`
 *  `jquery-validation-unobtrusive`
 
 ## POST method
 When we submit the form, we want it write down the data that has been submitted.
-This is done by using the POST method on the form:  
+This is done by using the POST method on the form:
 > `<form method="post">...</form>`
 
 In the controller, we need to create a corresponding method:
@@ -89,7 +89,7 @@ In the controller, we need to create a corresponding method:
 [HttpPost]
 public IActionResult Contact(ContactViewModel model)
 {
-    return View();
+return View();
 }
 ```
 
@@ -100,43 +100,43 @@ We need to create services on the server side to handle POST data.
 Those are created based on the interface like `IMailService`.
 
 We create a new service inside the Services folder and it should
-implement a service interface. Next, we inject the service 
+implement a service interface. Next, we inject the service
 in the controller constructor.
 ```csharp
 private IMailService _mailService;
 
 public AppController(IMailService service)
 {
-    _mailService = service;
+_mailService = service;
 }
 ```
 
 and add its reference in the Startup.cs (in DEBUG mode if necessary):
 ```csharp
 #if DEBUG
-    services.AddScoped<IMailService, DebugMailService>();
+services.AddScoped<IMailService, DebugMailService>();
 #else
-    services.AddScoped<IMailService, RealMailService>();
+services.AddScoped<IMailService, RealMailService>();
 #endif
-``` 
+```
 >
 Even better solution would be to use the new IHostingEnvironment interface
 because with the Cloud Services it has become very important to understand
 where our project is being hosted.
 ```csharp
-public void ConfigureServices(IServiceCollection services, 
-                              IHostingEnvironment env)
+public void ConfigureServices(IServiceCollection services,
+IHostingEnvironment env)
 {
-    ...
+...
 
-    if (env.IsDevelopment())
-    {
-        services.AddScoped<IMailService, DebugMailService>();
-    }
-    else
-    {
-        services.AddScoped<IMailService, MailService>();
-    }
+if (env.IsDevelopment())
+{
+services.AddScoped<IMailService, DebugMailService>();
+}
+else
+{
+services.AddScoped<IMailService, MailService>();
+}
 }
 ```
 
@@ -145,19 +145,19 @@ Finally, we will use the new service in our Http method:
 [HttpPost]
 public IActionResult Contact(ContactViewModel model)
 {
-    _mailService.SendMail(
-        "", // to
-        "", // from
-        $"Contact Page from {model.Name} ({model.Email})", // subject
-        model.Message); // body
+_mailService.SendMail(
+"", // to
+"", // from
+$"Contact Page from {model.Name} ({model.Email})", // subject
+model.Message); // body
 
-    return View();
+return View();
 }
 ```
 
 Actions Taken
 -------------
-* Add Bootstrap 
+* Add Bootstrap
   * dep to bower.json
   * min.css to _Layout.cshtml (before site.css)
   * min.js to _Layout.cshtml (after jQuery, befor site.js)
@@ -201,7 +201,7 @@ Entity Framework
 
 Creating the API
 ----------------
-* In the project properties take the checkmark off "Launch URL". 
+* In the project properties take the checkmark off "Launch URL".
   So that we could launch our web server instead.
 * We are going to use [Postman](https://www.getpostman.com).
   Choose the App version of it.
@@ -215,11 +215,11 @@ Creating the API
 * In the `Startup.cs`, we can add the special camel-case `ContractResolver`
   to our Mvc service:
 ```cs
-    services.AddMvc()
-        .AddJsonOptions(opt =>
-        {
-            opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-        });
+services.AddMvc()
+.AddJsonOptions(opt =>
+{
+opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+});
 ```
 * We add a `[Route("api/trips")]` attribute to the class. This gives the root route
   for all our methods inside this controller. So, `[HttpGet("api/trips")]`
@@ -229,62 +229,62 @@ Creating the API
 * Create a POST method in TripController. This could be a nice test implementation
   that allows us to see the incoming data in the debugger:
 ```cs
-    [HttpPost("")]
-    public JsonResult Post([FromBody]Trip newTrip)
-    {
-        return Json(true);
-    }
+[HttpPost("")]
+public JsonResult Post([FromBody]Trip newTrip)
+{
+return Json(true);
+}
 ```
-* Next we have to look at validation. And we have done that already in our `AppController`. 
+* Next we have to look at validation. And we have done that already in our `AppController`.
   So, it could be something like this:
 ```cs
-    [HttpPost("")]
-    public JsonResult Post([FromBody]Trip newTrip)
-    {
-        if (ModelState.IsValid)
-        {
-            Response.StatusCode = (int)HttpStatusCode.Created;
-            return Json(true);
-        }
+[HttpPost("")]
+public JsonResult Post([FromBody]Trip newTrip)
+{
+if (ModelState.IsValid)
+{
+Response.StatusCode = (int)HttpStatusCode.Created;
+return Json(true);
+}
 
-        Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        return Json("Failed");
-    }
+Response.StatusCode = (int)HttpStatusCode.BadRequest;
+return Json("Failed");
+}
 ```
 * The problem remains that in this way we are exposing all the properties
   of the underlying entity (`Trip`) and we don't want that. Therefore, we
   will replace it with a TripViewModel class in order to hide it.
 * We create TripViewModel class in our ViewModels folder and expose only
-  Id, Name and Created. The viewmodel does not have to know about e.g. the userName. 
+  Id, Name and Created. The viewmodel does not have to know about e.g. the userName.
 * On the viewmodel we can add client-side validation attributes.
 * Next, we are going to use AutoMapper to map the ViewModel to Model.
   We add the AutoMapper in our `project.json` file dependencies.
 * Now, we can use it in our Post method:
 ```cs
-    var newTrip = Mapper.Map<Trip>(vm);
+var newTrip = Mapper.Map<Trip>(vm);
 ```
 * In `Startup.cs` we have to configure the AutoMapper. Like this:
 ```cs
-    // AutoMapper with the ReverseMap because
-    // in the Post method we map from vm to trip
-    // So, we can do Map both ways now
-    Mapper.Initialize(config =>
-    {
-        config.CreateMap<Trip, TripViewModel>()
-            .ReverseMap();
-    });
+// AutoMapper with the ReverseMap because
+// in the Post method we map from vm to trip
+// So, we can do Map both ways now
+Mapper.Initialize(config =>
+{
+config.CreateMap<Trip, TripViewModel>()
+.ReverseMap();
+});
 ```
 * Now, we can also use the same Mapper to return the viewmodel object
   from the created newTrip:
 ```cs
-    // we use the same Mapper to map the newTrip 
-    // back to its viewmodel representation
-    return Json(Mapper.Map<TripViewModel>(newTrip));
+// we use the same Mapper to map the newTrip
+// back to its viewmodel representation
+return Json(Mapper.Map<TripViewModel>(newTrip));
 ```
 * We also use the Mapper with Get (only with IEnumerable). It will also work
-  properly because it automatically knows how to map collections of known objects: 
+  properly because it automatically knows how to map collections of known objects:
 ```cs
-    var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
+var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
 ```
 * Let us add logging to the TripController using `ILogger` parameter.
 * We can now save out newTrip to the repository via AddTrip and SaveAll methods.
@@ -297,7 +297,7 @@ Creating the API
   API controller like the one for trips.
 * The route parameter at the top of the class will be
 ```cs
-    [Route("api/trips/{tripName}/stops")]
+[Route("api/trips/{tripName}/stops")]
 ```
 * Notice `{tripName}` inside the route
 * In the `Get` method we will use a new repository method `GetTripByName(string tripName)`.
@@ -308,48 +308,48 @@ Creating the API
 * Add `Stops` property to the `TripViewModel`.
 * Add a `config.CreateMap` for this new map.
 * Now, we can see in Postman that we are actually getting trips with stops.
-* The `Post` method will be similar to the one of the TripController. 
+* The `Post` method will be similar to the one of the TripController.
   It will take as first param the tripName string.
 * This could be our AddStop method in the WorldRepository:
 ```cs
-    public void AddStop(string tripName, Stop newStop)
-    {
-        var theTrip = GetTripByName(tripName);
-        // here we can also set some default properties if we need them
-        newStop.Order = theTrip.Stops.Max(s => s.Order) + 1;
-        // we are adding the newStop to the Stops list
-        _context.Stops.Add(newStop);
-    }
+public void AddStop(string tripName, Stop newStop)
+{
+var theTrip = GetTripByName(tripName);
+// here we can also set some default properties if we need them
+newStop.Order = theTrip.Stops.Max(s => s.Order) + 1;
+// we are adding the newStop to the Stops list
+_context.Stops.Add(newStop);
+}
 ```
 * Now we need a Geolocation service. Add `GeoService.cs` class to `Services` folder.
 * GeoService will be returning a `GeoServiceResult` object with the following structure:
 ```cs
-    public class GeoServiceResult
-    {
-        public bool Success { get; set; }
-        public double Latitude { get; set; }
-        public double Longitute { get; set; }
-        public string Message { get; set; }
-    }
+public class GeoServiceResult
+{
+public bool Success { get; set; }
+public double Latitude { get; set; }
+public double Longitute { get; set; }
+public string Message { get; set; }
+}
 ```
-* Next we will need a working Url of a GeoCoordinate service of Bing. 
+* Next we will need a working Url of a GeoCoordinate service of Bing.
   It has the following format:
 ```cs
-    // lookup coordinates
-    var encodedName = WebUtility.UrlEncode(location);
-    // we can use the following setting if we have added our BingKey to our secret.json file
-    var bingKey = _options.Value.BingKey;
-    if (string.IsNullOrWhiteSpace(bingKey))
-    {
-        // we can use the following setting if we added "AppSettngs:BingKey" to Windows environment variables
-        bingKey = Startup.Configuration["AppSettngs:BingKey"];
-    }
-    var url = $"http://dev.virtualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
+// lookup coordinates
+var encodedName = WebUtility.UrlEncode(location);
+// we can use the following setting if we have added our BingKey to our secret.json file
+var bingKey = _options.Value.BingKey;
+if (string.IsNullOrWhiteSpace(bingKey))
+{
+// we can use the following setting if we added "AppSettngs:BingKey" to Windows environment variables
+bingKey = Startup.Configuration["AppSettngs:BingKey"];
+}
+var url = $"http://dev.virtualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
 ```
 * Get your bingKey from [Bing Maps](https://www.microsoft.com/maps/create-a-bing-maps-key.aspx)
   using your Microsoft identity login.
 * Store the BingKey either on your own computer as a Windows environment variable
-  or as a UserSecret. See 
+  or as a UserSecret. See
   * the implementation in `Startup.cs` where inside `ConfigureServices` method
   `MyOptions` class is used to store the BingKey value
   * in GeoService we inject the IOptions service to read the BingKey
@@ -359,19 +359,49 @@ Creating the API
   Because it is asynchronous by nature, we also need to make the following methods async Tasks:
 * GeoService
 ```cs
-    public async Task<GeoServiceResult> Lookup(string location)
+public async Task<GeoServiceResult> Lookup(string location)
 ```
 * StopController
 ```cs
-    public async Task<JsonResult> Post(string tripName, [FromBody]StopViewModel vm)
+public async Task<JsonResult> Post(string tripName, [FromBody]StopViewModel vm)
 ```
 * and to the calls we have to add `await`.
-* For parsing the result we get from the Bing Maps Geolocation service 
+* For parsing the result we get from the Bing Maps Geolocation service
   we are using `Jobject` of Newtonsoft (snippet by Shawn Wildermuth):
 ```js
-    var client = new HttpClient();
-    var json = await client.GetStringAsync(url);
-    var results = JObject.Parse(json);
-    var resources = results["resourceSets"][0]["resources"];
+var client = new HttpClient();
+var json = await client.GetStringAsync(url);
+var results = JObject.Parse(json);
+var resources = results["resourceSets"][0]["resources"];
 ```
 * Now, we have GET en POST methods working. PUT and DELETE are outside of scope for this course.
+
+ASP.NET 5 IDENTITY
+------------------
+* in the AppController we create a new action: `Trips()` to authorize the user
+  to see only his own trips.
+* we move the code from `Index()` to `Trips()` and remove the parameter
+  from its `View()` method.
+* we also make a copy of `Index.cshtml` to `Trips.cshtml` in the `Views/App` project folder.
+* `Index.cshtml` will become a simple welcome screen
+* add the `[Authorize]` attribute to our Trips action.
+* turn the debugger launch browser back on in the project Properties
+* if you run the website and press the green button, nothing happens :) (or an error)
+* we will have to store the authenticated users in the database
+* open `WorldContext.cs` in `Models` and change the name of the base class from
+  `DbContext` to `IdentityDbContext[WorldUser]`. add the corresponding reference libraries.
+* generate `WorldUser` class and add it to Models. This class should derive
+  from `IdentityUser` class of the `Identity.EntityFramework`.
+* we have changed the model, so we need to update our migrations
+  inside `J:\vs2015\BuildAspNet\TheWorld\src\TheWorld` folder:
+    > dnx ef migrations add IdentityEntities
+* if problems with `dnx451` compatibility, just add this framework to `package.json` file and,
+  if necessary, add references to `System.Net` and `System.Net.Http`.
+* if any problems with the database, just drop and recreate it again.
+* **NOTE** that for a small system like ours, we can stay with just one context (`WorldContext`).
+  For bigger systems however it may be useful to consider splitting the context
+  in two or more contexts.
+* add a default new user to seeding (`WorldContexSeedData.cs`) using async `FindByEmailAsync` method.
+* make `EnsureSeedData` an async `EnsureSeedDataAsync` method and edit `Startup.cs` as well
+  (`Configure` method).
+* the name of the new user we also add to our seeded Trip instances

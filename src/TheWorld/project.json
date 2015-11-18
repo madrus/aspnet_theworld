@@ -13,7 +13,8 @@
         "EntityFramework.Commands": "7.0.0-beta8",
         "Microsoft.Framework.Logging.Debug": "1.0.0-beta8",
         "AutoMapper": "4.1.1",
-        "Microsoft.Framework.Configuration.UserSecrets": "1.0.0-beta8"
+        "Microsoft.Framework.Configuration.UserSecrets": "1.0.0-beta8",
+        "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta8"
     },
 
     "commands": {
@@ -22,6 +23,12 @@
     },
 
     "frameworks": {
+        "dnx451": {
+            "frameworkAssemblies": {
+                "System.Net": "4.0.0.0",
+                "System.Net.Http": "4.0.0.0"
+            }
+        },
         "dnxcore50": {
             "dependencies": {
                 "runtime.win7.System.Runtime.Extensions": "4.0.11-beta-23409",

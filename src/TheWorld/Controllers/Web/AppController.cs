@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Mvc;
 using System;
 using System.Linq;
+using Microsoft.AspNet.Authorization;
 using TheWorld.Models;
 using TheWorld.Services;
 using TheWorld.ViewModels;
@@ -22,6 +23,12 @@ namespace TheWorld.Controllers.Web
         }
 
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Trips()
         {
             var trips = _repository.GetAllTrips();
             // for the @model to work in the view, we give trips back as a param
