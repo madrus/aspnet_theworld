@@ -12,6 +12,7 @@ using Microsoft.Framework.Logging;
 using Newtonsoft.Json.Serialization;
 using TheWorld.Models;
 using TheWorld.ViewModels;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace TheWorld
 {
@@ -70,6 +71,15 @@ namespace TheWorld
                     opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
 
+            services.AddIdentity<WorldUser, IdentityRole>(config =>
+            {
+                config.User.RequireUniqueEmail = true;
+                config.Password.RequiredLength = 8;
+                // we define the default path if the user is not authenticated
+                config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+            })
+            .AddEntityFrameworkStores<WorldContext>();
+
             services.AddLogging();
 
             // First we add Entity Framework, then SQL Server
@@ -110,14 +120,24 @@ namespace TheWorld
             }
         }
 
+        public void Configure(
+            IApplicationBuilder app,
+            ILoggerFactory loggerFactory,
+            WorldContextSeedData seeder)
+        {
+            ConfigureAsync(app, loggerFactory, seeder).Wait();
+        }
+
         /// <summary>
         /// For more details see the John's blog at
         /// http://wildermuth.com/2015/3/2/A_Look_at_ASP_NET_5_Part_2_-_Startup
+        ///
+        /// VERY IMPORTANT: the sequential order of Use directive matters!!!
         /// </summary>
         /// <param name="app"></param>
         /// <param name="loggerFactory"></param>
         /// <param name="seeder"></param>
-        public async Task Configure(
+        public async Task ConfigureAsync(
             IApplicationBuilder app,
             ILoggerFactory loggerFactory,
             WorldContextSeedData seeder)
@@ -128,6 +148,8 @@ namespace TheWorld
             loggerFactory.AddDebug(LogLevel.Warning);
 
             app.UseStaticFiles();
+
+            app.UseIdentity();
 
             // AutoMapper with the ReverseMap because
             // we have to be able to map in both directions

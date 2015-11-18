@@ -405,3 +405,10 @@ ASP.NET 5 IDENTITY
 * make `EnsureSeedData` an async `EnsureSeedDataAsync` method and edit `Startup.cs` as well
   (`Configure` method).
 * the name of the new user we also add to our seeded Trip instances
+* in `Startup.cs` we add Identity store to the services in `ConfigureServices` 
+  and then in `Configure` we tell the app to use Identity.  
+  **VERY IMPORTANT:** the sequential order of Use directive matters!!!
+* We add cookies authentication to `AddIdentity` method
+
+    config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+* 
