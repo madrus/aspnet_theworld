@@ -434,7 +434,19 @@ ASP.NET 5 IDENTITY
   so that we don't show validation on input level but only on the object level.
 * We add `novalidate` attribute to form, so that the validation happens only in the code.
 * Next, we create the `LoginViewModel` with two properties, Username and Password, with [Required] annotation. 
-* We add a `Login` ancortag as a button and link it to our `Auth.Login` method.
+* We also add a `Login` input as a button to POST user input to the API controller.
 * Next, we need to actually implement the `Login` and `Logout` methods.
-* 
+* In our `AuthController` we add the constructor to inject `SignInManager` that will
+  handle the sign in process for our `WorldUser`.
+* Now, we implement an async `Login` method to check the password and, if success,
+  to redirect the user to the `Trips` page.
+* The problem here is though that we are send the password by HTTP. This is OK for development but
+  not for production. To fix this, we add a `RequireHttpsAttribute` config parameter to `Startup.ConfigureServices.AddMvc`.
+  In this way, we will force HTTPS communication instead of plain HTTP, at least in production.
+  Because normally any production server should have a certificate if it requires passwords.
+* Next we go to `_Layout.cshtml` to make sure we only show the picture, etc. 
+  if the user is logged in. We also add two new menu options for the signed in user:
+  * My Trips (to go to the Trips page)
+  * Logout (to sign out properly)
+* Finally, we add the Logout action to the Auth controller
 

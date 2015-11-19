@@ -13,6 +13,7 @@ using Newtonsoft.Json.Serialization;
 using TheWorld.Models;
 using TheWorld.ViewModels;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Mvc;
 
 namespace TheWorld
 {
@@ -64,12 +65,18 @@ namespace TheWorld
             services.Configure<MyOptions>(Configuration);
 
             // Put Mvc services to the services container
-            services.AddMvc()
-                .AddJsonOptions(opt =>
-                {
-                    // to convert pascal-case property name to camel-case
-                    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
+            services.AddMvc(config =>
+            {
+#if !DEBUG
+                // try to use HTTPS instead of HTTP
+                config.Filters.Add(new RequireHttpsAttribute());
+#endif
+            })
+            .AddJsonOptions(opt =>
+            {
+                // to convert pascal-case property name to camel-case
+                opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
 
             services.AddIdentity<WorldUser, IdentityRole>(config =>
             {
