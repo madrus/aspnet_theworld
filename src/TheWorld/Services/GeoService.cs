@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNet.DataProtection;
-using Microsoft.Framework.Logging;
-using Microsoft.Framework.OptionsModel;
-using Newtonsoft.Json.Linq;
+﻿using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.OptionsModel;
+using Newtonsoft.Json.Linq;
 
 namespace TheWorld.Services
 {

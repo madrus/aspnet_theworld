@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNet.Builder;
-using Microsoft.Framework.DependencyInjection;
-using TheWorld.Services;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Framework.Configuration;
-using Microsoft.Dnx.Runtime;
-using Microsoft.Framework.Logging;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Serialization;
 using TheWorld.Models;
+using TheWorld.Services;
 using TheWorld.ViewModels;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Mvc;
 
 namespace TheWorld
 {
