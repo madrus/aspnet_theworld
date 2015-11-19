@@ -404,11 +404,37 @@ ASP.NET 5 IDENTITY
 * add a default new user to seeding (`WorldContexSeedData.cs`) using async `FindByEmailAsync` method.
 * make `EnsureSeedData` an async `EnsureSeedDataAsync` method and edit `Startup.cs` as well
   (`Configure` method).
+* Configure methods becomes ConfigureAsync method called by a "normal" void Configure method
+    ```cs
+    public void Configure(
+        IApplicationBuilder app,
+        ILoggerFactory loggerFactory,
+        WorldContextSeedData seeder)
+    {
+        ConfigureAsync(app, loggerFactory, seeder).Wait();
+    }
+    ```
 * the name of the new user we also add to our seeded Trip instances
 * in `Startup.cs` we add Identity store to the services in `ConfigureServices` 
   and then in `Configure` we tell the app to use Identity.  
   **VERY IMPORTANT:** the sequential order of Use directive matters!!!
 * We add cookies authentication to `AddIdentity` method
-
-    config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+    > config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+* Next, we create an AuthController with Login action
+* If the user is properly authenticated, we send him to the `Trips` page
+* If not, he will get a `Login` screen, which we have to create
+* First, create `Auth` folder in `Views` folder because the name has to match the controller.
+* Next, we create the `Login.cshtml` view and borrow the validation scripts from `Contact.cshtml`.
+  That is because we want to support validation on the `Login` page just as on any other page. 
+* Add some Bootstrap structure: form-group with two inputs, Username and Password (of type `password`)
+* We add model validation summary
+    ```cs
+    <div asp-validation-summary="ValidationSummary.ModelOnly"></div>
+    ```
+  so that we don't show validation on input level but only on the object level.
+* We add `novalidate` attribute to form, so that the validation happens only in the code.
+* Next, we create the `LoginViewModel` with two properties, Username and Password, with [Required] annotation. 
+* We add a `Login` ancortag as a button and link it to our `Auth.Login` method.
+* Next, we need to actually implement the `Login` and `Logout` methods.
 * 
+

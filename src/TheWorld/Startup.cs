@@ -120,6 +120,13 @@ namespace TheWorld
             }
         }
 
+        /// <summary>
+        /// This is the entry point of the app, just a void method
+        /// that calls the async ConfigureAsync method
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="loggerFactory"></param>
+        /// <param name="seeder"></param>
         public void Configure(
             IApplicationBuilder app,
             ILoggerFactory loggerFactory,
