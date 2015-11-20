@@ -11,6 +11,8 @@ using Newtonsoft.Json.Serialization;
 using TheWorld.Models;
 using TheWorld.Services;
 using TheWorld.ViewModels;
+using Microsoft.AspNet.Authentication.Cookies;
+using System.Net;
 
 namespace TheWorld
 {
@@ -81,6 +83,28 @@ namespace TheWorld
                 config.Password.RequiredLength = 8;
                 // we define the default path if the user is not authenticated
                 config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+                // override redirect events for our cookie authentication
+                config.Cookies.ApplicationCookie.Events = new CookieAuthenticationEvents()
+                {
+                    // if we are redirected to login
+                    OnRedirectToLogin = ctx =>
+                    {
+                        // check if this was an API request and previous StatusCode was OK
+                        if (ctx.Request.Path.StartsWithSegments("/api") &&
+                            ctx.Response.StatusCode == (int)HttpStatusCode.OK)
+                        {
+                            ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        }
+                        else
+                        {
+                            // this is the default behavior
+                            ctx.Response.Redirect(ctx.RedirectUri);
+                        }
+
+                        // everything is fine, we can go as requested
+                        return Task.FromResult(0);
+                    }
+                };
             })
             .AddEntityFrameworkStores<WorldContext>();
 

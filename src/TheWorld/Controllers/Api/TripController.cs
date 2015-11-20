@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Net;
 using TheWorld.Models;
 using TheWorld.ViewModels;
 
@@ -18,6 +17,7 @@ namespace TheWorld.Controllers.Api
     /// This specifies the root route for our API methods
     /// All the individual methods have to extend the path
     /// </summary>
+    [Authorize]
     [Route("api/trips")]
     public class TripController : Controller
     {

@@ -104,7 +104,6 @@ implement a service interface. Next, we inject the service
 in the controller constructor.
 ```csharp
 private IMailService _mailService;
-
 public AppController(IMailService service)
 {
 _mailService = service;
@@ -214,13 +213,13 @@ Creating the API
   And that could be a bit of a problem in a JavaScript environment.
 * In the `Startup.cs`, we can add the special camel-case `ContractResolver`
   to our Mvc service:
-```cs
-services.AddMvc()
-.AddJsonOptions(opt =>
-{
-opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-});
-```
+    ```cs
+    services.AddMvc()
+    .AddJsonOptions(opt =>
+    {
+    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    });
+    ```
 * We add a `[Route("api/trips")]` attribute to the class. This gives the root route
   for all our methods inside this controller. So, `[HttpGet("api/trips")]`
   becomes `[HttpGet("")]`, etc.
@@ -228,29 +227,29 @@ opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractReso
   For that we choose raw/JSON(application/json) type data.
 * Create a POST method in TripController. This could be a nice test implementation
   that allows us to see the incoming data in the debugger:
-```cs
-[HttpPost("")]
-public JsonResult Post([FromBody]Trip newTrip)
-{
-return Json(true);
-}
-```
+    ```cs
+    [HttpPost("")]
+    public JsonResult Post([FromBody]Trip newTrip)
+    {
+    return Json(true);
+    }
+    ```
 * Next we have to look at validation. And we have done that already in our `AppController`.
   So, it could be something like this:
-```cs
-[HttpPost("")]
-public JsonResult Post([FromBody]Trip newTrip)
-{
-if (ModelState.IsValid)
-{
-Response.StatusCode = (int)HttpStatusCode.Created;
-return Json(true);
-}
+    ```cs
+    [HttpPost("")]
+    public JsonResult Post([FromBody]Trip newTrip)
+    {
+    if (ModelState.IsValid)
+    {
+    Response.StatusCode = (int)HttpStatusCode.Created;
+    return Json(true);
+    }
 
-Response.StatusCode = (int)HttpStatusCode.BadRequest;
-return Json("Failed");
-}
-```
+    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+    return Json("Failed");
+    }
+    ```
 * The problem remains that in this way we are exposing all the properties
   of the underlying entity (`Trip`) and we don't want that. Therefore, we
   will replace it with a TripViewModel class in order to hide it.
@@ -260,32 +259,32 @@ return Json("Failed");
 * Next, we are going to use AutoMapper to map the ViewModel to Model.
   We add the AutoMapper in our `project.json` file dependencies.
 * Now, we can use it in our Post method:
-```cs
-var newTrip = Mapper.Map<Trip>(vm);
-```
+    ```cs
+    var newTrip = Mapper.Map<Trip>(vm);
+    ```
 * In `Startup.cs` we have to configure the AutoMapper. Like this:
-```cs
-// AutoMapper with the ReverseMap because
-// in the Post method we map from vm to trip
-// So, we can do Map both ways now
-Mapper.Initialize(config =>
-{
-config.CreateMap<Trip, TripViewModel>()
-.ReverseMap();
-});
-```
+    ```cs
+    // AutoMapper with the ReverseMap because
+    // in the Post method we map from vm to trip
+    // So, we can do Map both ways now
+    Mapper.Initialize(config =>
+    {
+    config.CreateMap<Trip, TripViewModel>()
+    .ReverseMap();
+    });
+    ```
 * Now, we can also use the same Mapper to return the viewmodel object
   from the created newTrip:
-```cs
-// we use the same Mapper to map the newTrip
-// back to its viewmodel representation
-return Json(Mapper.Map<TripViewModel>(newTrip));
-```
+    ```cs
+    // we use the same Mapper to map the newTrip
+    // back to its viewmodel representation
+    return Json(Mapper.Map<TripViewModel>(newTrip));
+    ```
 * We also use the Mapper with Get (only with IEnumerable). It will also work
   properly because it automatically knows how to map collections of known objects:
-```cs
-var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
-```
+    ```cs
+    var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
+    ```
 * Let us add logging to the TripController using `ILogger` parameter.
 * We can now save out newTrip to the repository via AddTrip and SaveAll methods.
   These have to be added to the IWorldRepository interface first and then
@@ -296,9 +295,9 @@ var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWith
 * Now, we shall build the API controller for Stops. We start by a basic
   API controller like the one for trips.
 * The route parameter at the top of the class will be
-```cs
-[Route("api/trips/{tripName}/stops")]
-```
+    ```cs
+    [Route("api/trips/{tripName}/stops")]
+    ```
 * Notice `{tripName}` inside the route
 * In the `Get` method we will use a new repository method `GetTripByName(string tripName)`.
   which we of course have to add to it.
@@ -311,41 +310,41 @@ var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWith
 * The `Post` method will be similar to the one of the TripController.
   It will take as first param the tripName string.
 * This could be our AddStop method in the WorldRepository:
-```cs
-public void AddStop(string tripName, Stop newStop)
-{
-var theTrip = GetTripByName(tripName);
-// here we can also set some default properties if we need them
-newStop.Order = theTrip.Stops.Max(s => s.Order) + 1;
-// we are adding the newStop to the Stops list
-_context.Stops.Add(newStop);
-}
-```
+    ```cs
+    public void AddStop(string tripName, Stop newStop)
+    {
+    var theTrip = GetTripByName(tripName);
+    // here we can also set some default properties if we need them
+    newStop.Order = theTrip.Stops.Max(s => s.Order) + 1;
+    // we are adding the newStop to the Stops list
+    _context.Stops.Add(newStop);
+    }
+    ```
 * Now we need a Geolocation service. Add `GeoService.cs` class to `Services` folder.
 * GeoService will be returning a `GeoServiceResult` object with the following structure:
-```cs
-public class GeoServiceResult
-{
-public bool Success { get; set; }
-public double Latitude { get; set; }
-public double Longitute { get; set; }
-public string Message { get; set; }
-}
-```
+    ```cs
+    public class GeoServiceResult
+    {
+    public bool Success { get; set; }
+    public double Latitude { get; set; }
+    public double Longitute { get; set; }
+    public string Message { get; set; }
+    }
+    ```
 * Next we will need a working Url of a GeoCoordinate service of Bing.
   It has the following format:
-```cs
-// lookup coordinates
-var encodedName = WebUtility.UrlEncode(location);
-// we can use the following setting if we have added our BingKey to our secret.json file
-var bingKey = _options.Value.BingKey;
-if (string.IsNullOrWhiteSpace(bingKey))
-{
-// we can use the following setting if we added "AppSettngs:BingKey" to Windows environment variables
-bingKey = Startup.Configuration["AppSettngs:BingKey"];
-}
-var url = $"http://dev.virtualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
-```
+    ```cs
+    // lookup coordinates
+    var encodedName = WebUtility.UrlEncode(location);
+    // we can use the following setting if we have added our BingKey to our secret.json file
+    var bingKey = _options.Value.BingKey;
+    if (string.IsNullOrWhiteSpace(bingKey))
+    {
+    // we can use the following setting if we added "AppSettngs:BingKey" to Windows environment variables
+    bingKey = Startup.Configuration["AppSettngs:BingKey"];
+    }
+    var url = $"http://dev.virtualearth.net/REST/v1/Locations?q={encodedName}&key={bingKey}";
+    ```
 * Get your bingKey from [Bing Maps](https://www.microsoft.com/maps/create-a-bing-maps-key.aspx)
   using your Microsoft identity login.
 * Store the BingKey either on your own computer as a Windows environment variable
@@ -358,22 +357,22 @@ var url = $"http://dev.virtualearth.net/REST/v1/Locations?q={encodedName}&key={b
 * Next we add Service.Net.Http reference to use the latest HttpClient Service.
   Because it is asynchronous by nature, we also need to make the following methods async Tasks:
 * GeoService
-```cs
-public async Task<GeoServiceResult> Lookup(string location)
-```
+    ```cs
+    public async Task<GeoServiceResult> Lookup(string location)
+    ```
 * StopController
-```cs
-public async Task<JsonResult> Post(string tripName, [FromBody]StopViewModel vm)
-```
+    ```cs
+    public async Task<JsonResult> Post(string tripName, [FromBody]StopViewModel vm)
+    ```
 * and to the calls we have to add `await`.
 * For parsing the result we get from the Bing Maps Geolocation service
   we are using `Jobject` of Newtonsoft (snippet by Shawn Wildermuth):
-```js
-var client = new HttpClient();
-var json = await client.GetStringAsync(url);
-var results = JObject.Parse(json);
-var resources = results["resourceSets"][0]["resources"];
-```
+    ```js
+    var client = new HttpClient();
+    var json = await client.GetStringAsync(url);
+    var results = JObject.Parse(json);
+    var resources = results["resourceSets"][0]["resources"];
+    ```
 * Now, we have GET en POST methods working. PUT and DELETE are outside of scope for this course.
 
 ASP.NET 5 IDENTITY
@@ -429,7 +428,7 @@ ASP.NET 5 IDENTITY
 * Add some Bootstrap structure: form-group with two inputs, Username and Password (of type `password`)
 * We add model validation summary
     ```cs
-    <div asp-validation-summary="ValidationSummary.ModelOnly"></div>
+    asp-validation-summary="ValidationSummary.ModelOnly" 
     ```
   so that we don't show validation on input level but only on the object level.
 * We add `novalidate` attribute to form, so that the validation happens only in the code.
@@ -449,4 +448,17 @@ ASP.NET 5 IDENTITY
   * My Trips (to go to the Trips page)
   * Logout (to sign out properly)
 * Finally, we add the Logout action to the Auth controller
+
+### Securing an API
+* Cookie Auth is not secure enough, especially for financial applications
+* OAuth2 and Open ID Connect (OIDC) are safer and support non-JS clients better
+* We will work with cookies in this project.
+* In `TripController` we could apply `[Authorize]` attribute to individual methods,
+  but we want to do it on every one of them, so it is better to apply on class level.
+* If we now try to do a GET via POSTMAN, we get an HTML page back instead of JSON document.
+  That is because we are not authorized and redirected to the login page, which give status 200.
+* So, we will use the same approach as for `"/Auth/Login"`. Only this time we will be
+  overriding events related to redirect.
+* 
+
 
