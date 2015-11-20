@@ -12,7 +12,7 @@
         "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
         "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final",
         "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-rc1-final",
-        "Microsoft.Extensions.Logging.Debug": "1.0.0-rc1-final" 
+        "Microsoft.Extensions.Logging.Debug": "1.0.0-rc1-final"
     },
 
     "commands": {
@@ -21,11 +21,17 @@
     },
 
     "frameworks": {
-        "dnx451": {
+        "dnx46": {
             "frameworkAssemblies": {
                 "System.Net": "4.0.0.0",
                 "System.Net.Http": "4.0.0.0"
             },
+            "dependencies": {
+                "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-rc1-final",
+                "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final"
+            }
+        },
+        "dnxcore50": {
             "dependencies": {
                 "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-rc1-final",
                 "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final"

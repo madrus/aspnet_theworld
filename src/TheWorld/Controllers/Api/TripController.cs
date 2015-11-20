@@ -38,7 +38,8 @@ namespace TheWorld.Controllers.Api
         [HttpGet("")]
         public JsonResult Get()
         {
-            var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
+            var trips = _repository.GetUserTripsWithStops(User.Identity.Name);
+            var results = Mapper.Map<IEnumerable<TripViewModel>>(trips);
             //return Json(new {name = "Andre"});
             return Json(results);
         }
@@ -51,11 +52,13 @@ namespace TheWorld.Controllers.Api
                 if (ModelState.IsValid)
                 {
                     var newTrip = Mapper.Map<Trip>(vm);
+                    newTrip.UserName = User.Identity.Name;
 
                     // Save to database
                     _logger.LogInformation("Attempting to save a new trip");
                     // Add the newTrip to the repository
                     _repository.AddTrip(newTrip);
+
                     // check if success
                     if (_repository.SaveAll())
                     {

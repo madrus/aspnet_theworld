@@ -113,177 +113,184 @@ _mailService = service;
 and add its reference in the Startup.cs (in DEBUG mode if necessary):
 ```csharp
 #if DEBUG
-services.AddScoped<IMailService, DebugMailService>();
-#else
-services.AddScoped<IMailService, RealMailService>();
-#endif
-```
->
-Even better solution would be to use the new IHostingEnvironment interface
-because with the Cloud Services it has become very important to understand
-where our project is being hosted.
-```csharp
-public void ConfigureServices(IServiceCollection services,
-IHostingEnvironment env)
-{
-...
+services.AddScoped<IMailService, DebugMailService>
+    ();
+    #else
+    services.AddScoped<IMailService, RealMailService>
+        ();
+        #endif
+        ```
+        >
+        Even better solution would be to use the new IHostingEnvironment interface
+        because with the Cloud Services it has become very important to understand
+        where our project is being hosted.
+        ```csharp
+        public void ConfigureServices(IServiceCollection services,
+        IHostingEnvironment env)
+        {
+        ...
 
-if (env.IsDevelopment())
-{
-services.AddScoped<IMailService, DebugMailService>();
-}
-else
-{
-services.AddScoped<IMailService, MailService>();
-}
-}
-```
+        if (env.IsDevelopment())
+        {
+        services.AddScoped<IMailService, DebugMailService>
+            ();
+            }
+            else
+            {
+            services.AddScoped<IMailService, MailService>
+                ();
+                }
+                }
+                ```
 
-Finally, we will use the new service in our Http method:
-```csharp
-[HttpPost]
-public IActionResult Contact(ContactViewModel model)
-{
-_mailService.SendMail(
-"", // to
-"", // from
-$"Contact Page from {model.Name} ({model.Email})", // subject
-model.Message); // body
+                Finally, we will use the new service in our Http method:
+                ```csharp
+                [HttpPost]
+                public IActionResult Contact(ContactViewModel model)
+                {
+                _mailService.SendMail(
+                "", // to
+                "", // from
+                $"Contact Page from {model.Name} ({model.Email})", // subject
+                model.Message); // body
 
-return View();
-}
-```
+                return View();
+                }
+                ```
 
-Actions Taken
--------------
-* Add Bootstrap
-  * dep to bower.json
-  * min.css to _Layout.cshtml (before site.css)
-  * min.js to _Layout.cshtml (after jQuery, befor site.js)
-* CSS: body, label, input in comment (to use BS)
-* _Layout
-  * button: btn + btn-primary
-  * p: text-primary
-  * i: glyphicon glyphicon-chevron-left
-* Add Font-Awesome
-  * dep to bower.json
-  * min.css to _Layout.cshtml (before site.css)
-* _Layout
-  * i: fa fa-angle-left
-* site.js
-  * addClass/removeClass fa-angle-left/fa-angle-right
-* choose a [bootswatch.com](bootswatch.com) theme
-  * dep in bower.json
-  * min.css to _Layout.cshtml (after bootstrap.css)
-* CSS: main and footer in comment
-  * i: fa fa-angle-left
+                Actions Taken
+                -------------
+                * Add Bootstrap
+                * dep to bower.json
+                * min.css to _Layout.cshtml (before site.css)
+                * min.js to _Layout.cshtml (after jQuery, befor site.js)
+                * CSS: body, label, input in comment (to use BS)
+                * _Layout
+                * button: btn + btn-primary
+                * p: text-primary
+                * i: glyphicon glyphicon-chevron-left
+                * Add Font-Awesome
+                * dep to bower.json
+                * min.css to _Layout.cshtml (before site.css)
+                * _Layout
+                * i: fa fa-angle-left
+                * site.js
+                * addClass/removeClass fa-angle-left/fa-angle-right
+                * choose a [bootswatch.com](bootswatch.com) theme
+                * dep in bower.json
+                * min.css to _Layout.cshtml (after bootstrap.css)
+                * CSS: main and footer in comment
+                * i: fa fa-angle-left
 
-Entity Framework
-----------------
-* Add DbContext file (`WorldContex.cs`) to the Models map
-* Add SqlServer
-* Add Migrations
-  * add a new dependency `"EntityFramework.Commands": "7.0.0-beta8"`
-    to `project.json`
-  * add a new command `"ef": "EntityFramework.Commands"` to `project.json`
-  * add connection string to `config.json`
-    ```csharp
-        "Data": {
-            "WorldContextConnection": "Server=(localdb)\\MSSQLLocalDB;Database=TheWorldDB;Trusted_Connection=true;MultipleActiveResultSets=true;"
-        }
-    ```
-  * run `dnx ef`
-  * run `dnx ef migrations add InitialDatabase` in the project folder
-  * now we get two new classes in our Migrations folder.
-    We now have both the schema and the database generation scripts.
-  * add `Database.EnsureCreated()` to the WorldContext constructor
+                Entity Framework
+                ----------------
+                * Add DbContext file (`WorldContex.cs`) to the Models map
+                * Add SqlServer
+                * Add Migrations
+                * add a new dependency `"EntityFramework.Commands": "7.0.0-beta8"`
+                to `project.json`
+                * add a new command `"ef": "EntityFramework.Commands"` to `project.json`
+                * add connection string to `config.json`
+                ```csharp
+                "Data": {
+                "WorldContextConnection": "Server=(localdb)\\MSSQLLocalDB;Database=TheWorldDB;Trusted_Connection=true;MultipleActiveResultSets=true;"
+                }
+                ```
+                * run `dnx ef`
+                * run `dnx ef migrations add InitialDatabase` in the project folder
+                * now we get two new classes in our Migrations folder.
+                We now have both the schema and the database generation scripts.
+                * add `Database.EnsureCreated()` to the WorldContext constructor
 
-Creating the API
-----------------
-* In the project properties take the checkmark off "Launch URL".
-  So that we could launch our web server instead.
-* We are going to use [Postman](https://www.getpostman.com).
-  Choose the App version of it.
-* Create Api subfolder in Controllers
-* Create a `TripController` inside it and derive it from `Controller`
-* Create a `Get` method with an `[HttpGet("api/trips")]` attribute
-* We can now return a test Json object and see it in Postman
-* Next we can add our repository in the ctor and get the real results.
-  Now we can see them in the Postman but they are not camel-cased.
-  And that could be a bit of a problem in a JavaScript environment.
-* In the `Startup.cs`, we can add the special camel-case `ContractResolver`
-  to our Mvc service:
-    ```cs
-    services.AddMvc()
-    .AddJsonOptions(opt =>
-    {
-    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-    });
-    ```
-* We add a `[Route("api/trips")]` attribute to the class. This gives the root route
-  for all our methods inside this controller. So, `[HttpGet("api/trips")]`
-  becomes `[HttpGet("")]`, etc.
-* Now, we can change GET to PUT in the Postman and create a test trip in the Body tab.
-  For that we choose raw/JSON(application/json) type data.
-* Create a POST method in TripController. This could be a nice test implementation
-  that allows us to see the incoming data in the debugger:
-    ```cs
-    [HttpPost("")]
-    public JsonResult Post([FromBody]Trip newTrip)
-    {
-    return Json(true);
-    }
-    ```
-* Next we have to look at validation. And we have done that already in our `AppController`.
-  So, it could be something like this:
-    ```cs
-    [HttpPost("")]
-    public JsonResult Post([FromBody]Trip newTrip)
-    {
-    if (ModelState.IsValid)
-    {
-    Response.StatusCode = (int)HttpStatusCode.Created;
-    return Json(true);
-    }
+                Creating the API
+                ----------------
+                * In the project properties take the checkmark off "Launch URL".
+                So that we could launch our web server instead.
+                * We are going to use [Postman](https://www.getpostman.com).
+                Choose the App version of it.
+                * Create Api subfolder in Controllers
+                * Create a `TripController` inside it and derive it from `Controller`
+                * Create a `Get` method with an `[HttpGet("api/trips")]` attribute
+                * We can now return a test Json object and see it in Postman
+                * Next we can add our repository in the ctor and get the real results.
+                Now we can see them in the Postman but they are not camel-cased.
+                And that could be a bit of a problem in a JavaScript environment.
+                * In the `Startup.cs`, we can add the special camel-case `ContractResolver`
+                to our Mvc service:
+                ```cs
+                services.AddMvc()
+                .AddJsonOptions(opt =>
+                {
+                opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                });
+                ```
+                * We add a `[Route("api/trips")]` attribute to the class. This gives the root route
+                for all our methods inside this controller. So, `[HttpGet("api/trips")]`
+                becomes `[HttpGet("")]`, etc.
+                * Now, we can change GET to PUT in the Postman and create a test trip in the Body tab.
+                For that we choose raw/JSON(application/json) type data.
+                * Create a POST method in TripController. This could be a nice test implementation
+                that allows us to see the incoming data in the debugger:
+                ```cs
+                [HttpPost("")]
+                public JsonResult Post([FromBody]Trip newTrip)
+                {
+                return Json(true);
+                }
+                ```
+                * Next we have to look at validation. And we have done that already in our `AppController`.
+                So, it could be something like this:
+                ```cs
+                [HttpPost("")]
+                public JsonResult Post([FromBody]Trip newTrip)
+                {
+                if (ModelState.IsValid)
+                {
+                Response.StatusCode = (int)HttpStatusCode.Created;
+                return Json(true);
+                }
 
-    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-    return Json("Failed");
-    }
-    ```
-* The problem remains that in this way we are exposing all the properties
-  of the underlying entity (`Trip`) and we don't want that. Therefore, we
-  will replace it with a TripViewModel class in order to hide it.
-* We create TripViewModel class in our ViewModels folder and expose only
-  Id, Name and Created. The viewmodel does not have to know about e.g. the userName.
-* On the viewmodel we can add client-side validation attributes.
-* Next, we are going to use AutoMapper to map the ViewModel to Model.
-  We add the AutoMapper in our `project.json` file dependencies.
-* Now, we can use it in our Post method:
-    ```cs
-    var newTrip = Mapper.Map<Trip>(vm);
-    ```
-* In `Startup.cs` we have to configure the AutoMapper. Like this:
-    ```cs
-    // AutoMapper with the ReverseMap because
-    // in the Post method we map from vm to trip
-    // So, we can do Map both ways now
-    Mapper.Initialize(config =>
-    {
-    config.CreateMap<Trip, TripViewModel>()
-    .ReverseMap();
-    });
-    ```
-* Now, we can also use the same Mapper to return the viewmodel object
-  from the created newTrip:
-    ```cs
-    // we use the same Mapper to map the newTrip
-    // back to its viewmodel representation
-    return Json(Mapper.Map<TripViewModel>(newTrip));
-    ```
-* We also use the Mapper with Get (only with IEnumerable). It will also work
-  properly because it automatically knows how to map collections of known objects:
-    ```cs
-    var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Failed");
+                }
+                ```
+                * The problem remains that in this way we are exposing all the properties
+                of the underlying entity (`Trip`) and we don't want that. Therefore, we
+                will replace it with a TripViewModel class in order to hide it.
+                * We create TripViewModel class in our ViewModels folder and expose only
+                Id, Name and Created. The viewmodel does not have to know about e.g. the userName.
+                * On the viewmodel we can add client-side validation attributes.
+                * Next, we are going to use AutoMapper to map the ViewModel to Model.
+                We add the AutoMapper in our `project.json` file dependencies.
+                * Now, we can use it in our Post method:
+                ```cs
+                var newTrip = Mapper.Map<Trip>
+                    (vm);
+                    ```
+                    * In `Startup.cs` we have to configure the AutoMapper. Like this:
+                    ```cs
+                    // AutoMapper with the ReverseMap because
+                    // in the Post method we map from vm to trip
+                    // So, we can do Map both ways now
+                    Mapper.Initialize(config =>
+                    {
+                    config.CreateMap<Trip, TripViewModel>
+                        ()
+                        .ReverseMap();
+                        });
+                        ```
+                        * Now, we can also use the same Mapper to return the viewmodel object
+                        from the created newTrip:
+                        ```cs
+                        // we use the same Mapper to map the newTrip
+                        // back to its viewmodel representation
+                        return Json(Mapper.Map<TripViewModel>
+                            (newTrip));
+                            ```
+                            * We also use the Mapper with Get (only with IEnumerable). It will also work
+                            properly because it automatically knows how to map collections of known objects:
+                            ```cs
+                            var results = Mapper.Map<IEnumerable<TripViewModel>>(_repository.GetAllTripsWithStops());
     ```
 * Let us add logging to the TripController using `ILogger` parameter.
 * We can now save out newTrip to the repository via AddTrip and SaveAll methods.
@@ -414,8 +421,8 @@ ASP.NET 5 IDENTITY
     }
     ```
 * the name of the new user we also add to our seeded Trip instances
-* in `Startup.cs` we add Identity store to the services in `ConfigureServices` 
-  and then in `Configure` we tell the app to use Identity.  
+* in `Startup.cs` we add Identity store to the services in `ConfigureServices`
+  and then in `Configure` we tell the app to use Identity.
   **VERY IMPORTANT:** the sequential order of Use directive matters!!!
 * We add cookies authentication to `AddIdentity` method
     > config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
@@ -424,15 +431,15 @@ ASP.NET 5 IDENTITY
 * If not, he will get a `Login` screen, which we have to create
 * First, create `Auth` folder in `Views` folder because the name has to match the controller.
 * Next, we create the `Login.cshtml` view and borrow the validation scripts from `Contact.cshtml`.
-  That is because we want to support validation on the `Login` page just as on any other page. 
+  That is because we want to support validation on the `Login` page just as on any other page.
 * Add some Bootstrap structure: form-group with two inputs, Username and Password (of type `password`)
 * We add model validation summary
     ```cs
-    asp-validation-summary="ValidationSummary.ModelOnly" 
+    asp-validation-summary="ValidationSummary.ModelOnly"
     ```
   so that we don't show validation on input level but only on the object level.
 * We add `novalidate` attribute to form, so that the validation happens only in the code.
-* Next, we create the `LoginViewModel` with two properties, Username and Password, with [Required] annotation. 
+* Next, we create the `LoginViewModel` with two properties, Username and Password, with [Required] annotation.
 * We also add a `Login` input as a button to POST user input to the API controller.
 * Next, we need to actually implement the `Login` and `Logout` methods.
 * In our `AuthController` we add the constructor to inject `SignInManager` that will
@@ -443,7 +450,7 @@ ASP.NET 5 IDENTITY
   not for production. To fix this, we add a `RequireHttpsAttribute` config parameter to `Startup.ConfigureServices.AddMvc`.
   In this way, we will force HTTPS communication instead of plain HTTP, at least in production.
   Because normally any production server should have a certificate if it requires passwords.
-* Next we go to `_Layout.cshtml` to make sure we only show the picture, etc. 
+* Next we go to `_Layout.cshtml` to make sure we only show the picture, etc.
   if the user is logged in. We also add two new menu options for the signed in user:
   * My Trips (to go to the Trips page)
   * Logout (to sign out properly)
@@ -459,6 +466,100 @@ ASP.NET 5 IDENTITY
   That is because we are not authorized and redirected to the login page, which give status 200.
 * So, we will use the same approach as for `"/Auth/Login"`. Only this time we will be
   overriding events related to redirect.
-* 
+* When we do, we get a `401 Unauthorized` status in POSTMAN.
+* Next, we will need to save the identity information for authorized users.
+* We add `GetUserTripsWithStops` method to our controller and `IWorldRepository` interface
+  and then implement it in the `WorldRepository`.
+* **IMPORTANT:** For POSTMAN to be aware of cookies, activate its Interceptor/Proxy option and start
+  the website in Chrome (not Canary!!!). Notice, that if we now log in as Sam Hastings, the GET call
+  returns the JSON document with a list of trips. And it knows the user name from the cookie.
+* In the `Post` method we now add saving the user name: `newTrip.UserName = User.Identity.Name;` 
+  We can trust that the current User is always the one who is currently logged in.
+* If we post a trip via POSTMAN, we will see the user name filled in the database.
+* Finally, we do the same for `Stops`:
+  * `[Authorize]` the class
+  * add user name to Post and Add methods
+
+NOTES OF SWAWN WILDERMUTH
+-------------------------
+The current version of the course was built with ASP.NET 5 Beta 7. If you haven't installed the Visual Studio
+ASP.NET 5 Update for Beta 7 or 8, please do so before trying the course:
+[installing on Windows](http://docs.asp.net/en/latest/getting-started/installing-on-windows.html)
+
+The course has been updated to Beta 8 but we're waiting on it going through a quick review before it goes live.
+Until that time, several bugs and incompatibilities exist:
+
+#### Module 1
+When creating the HelloWorld example:
+
+* You'll need to launch it via `dnx run` without the period.
+* The minimal project.json file in the console app need to look like this instead of being empty:
+
+    ```json
+    {
+        "frameworks": {
+            "dnx46": {}
+        }
+    }
+    ```
+
+When launching the project created with Yeoman:
+
+* make sure you change directories to be inside the same folder as the project.json file.
+
+#### Module 4
+When registering the MailService in Startup.cs, I suggest you inject IHostingEnvironment into the
+`ConfigureServices` but it does not allow for injection into that method. Simply use `#if DEBUG`
+to wrap it instead. This is likely to change in later releases of ASP.NET 5.
+
+#### Module 6
+When creating the Connection String:
+
+* The term MultipleActiveResultSets was misspelled as MultipleActiveRecordSets.
+* When creating the repository, the name of the private variable is misnamed _respository,
+  this doesn't affect the code but is in correctly spelled.
+
+#### Module 8
+When calling the StopsController:
+
+* Using Kestrel server in Beta 8 exposed a bug in ASP.NET 5 where the route parameter (e.g. US%20Trips)
+  was passed into the controller with URL encoding. This will be fixed in future ASP.NET 5 versions,
+  but to work around it, just use `WebUtilities.UrlDecode` on the parameter before you use the tripName
+  to query the Repository.
+* When supporting Unauthorized from the Web API, the old method of overriding the `CookieAuthenticationOptions`
+  had a design change. The code should now look like this:
+    ```csharp
+    services.AddIdentity<WorldUser, IdentityRole>(config =>
+    {
+        config.User.RequireUniqueEmail = true;
+        config.Password.RequiredLength = 8;
+        config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+        config.Cookies.ApplicationCookie.Events = new CookieAuthenticationEvents()
+        {
+            OnRedirect = ctx =>
+            {
+                if (ctx.Request.Path.StartsWithSegments("/api") &&
+                    ctx.Response.StatusCode == 200)
+                {
+                    ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                }
+                else
+                {
+                    ctx.Response.Redirect(ctx.RedirectUri);
+                }
+
+                return Task.FromResult(0);
+            }
+        };
+    })
+    .AddEntityFrameworkStores<WorldContext>();
+    ```
+
+We will be updating the course as new releases come out in December and 1st quarter of next year.
+
+Thanks for viewing the course!
+
+-Shawn
+
 
 

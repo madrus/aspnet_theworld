@@ -101,8 +101,8 @@ namespace TheWorld
                             ctx.Response.Redirect(ctx.RedirectUri);
                         }
 
-                        // everything is fine, we can go as requested
-                        return Task.FromResult(0);
+                        // everything is fine, we can go as requested 
+                        return Task.FromResult<object>(null); // or Task.FromResult(0);
                     }
                 };
             })

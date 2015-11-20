@@ -9,9 +9,11 @@ using Microsoft.Extensions.Logging;
 using TheWorld.Models;
 using TheWorld.Services;
 using TheWorld.ViewModels;
+using Microsoft.AspNet.Authorization;
 
 namespace TheWorld.Controllers.Api
 {
+    [Authorize]
     [Route("api/trips/{tripName}/stops")]
     public class StopController : Controller
     {
@@ -36,7 +38,10 @@ namespace TheWorld.Controllers.Api
             {
                 // temporarily decoding via WebUtility because of a bug in Beta 8
                 var decodedName = WebUtility.UrlDecode(tripName);
-                var results = _repository.GetTripByName(decodedName);
+
+                // we include the user name just in case, because the trip itself can
+                // accidentally have another user's name
+                var results = _repository.GetTripByName(decodedName, User.Identity.Name);
 
                 return Json(
                     results == null
@@ -78,7 +83,7 @@ namespace TheWorld.Controllers.Api
                     // save to the database
                     // Add the newStop to the repository
                     _logger.LogInformation("Attempting to save a new stop");
-                    _repository.AddStop(decodedTripName, newStop);
+                    _repository.AddStop(decodedTripName, User.Identity.Name, newStop);
                     // check if success
                     if (_repository.SaveAll())
                     {
